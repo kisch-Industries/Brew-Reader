@@ -6,7 +6,7 @@ TMPDIR=/mnt/us/KFPM-Temporary
 mkdir -p "$TMPDIR"
 
 # Download + Extract
-curl -fSL --progress-bar -o "$TMPDIR/brewreader.zip" https://github.com/kisch-Industries/Morning-Brew-Kindle-Forge/releases/latest/download/brewreader.zip
+curl -fSL --progress-bar -o "$TMPDIR/brewreader.zip" https://github.com/kisch-Industries/Brew-Reader/releases/latest/download/brewreader.zip
 unzip -oq "$TMPDIR/brewreader.zip" -d "$TMPDIR"
 
 # Copy Contents
