@@ -17,8 +17,20 @@ function check(page) {
 if (process.argv[2]) {
   check(fs.readFileSync(process.argv[2], "utf8"));
 } else {
-  fetch("https://www.morningbrew.com/issues/latest", { headers: { "User-Agent": "Mozilla/5.0" } })
-    .then(function (r) { return r.text(); })
-    .then(check)
-    .catch(function (e) { console.error(e); process.exit(1); });
+  // Retries so one blocked or slow request (e.g. from a CI runner) isn't reported as the page changing.
+  var attempts = 3;
+  var tryFetch = function (n) {
+    fetch("https://www.morningbrew.com/issues/latest", { headers: { "User-Agent": "Mozilla/5.0" } })
+      .then(function (r) {
+        if (!r.ok) throw new Error("HTTP " + r.status + " " + r.statusText);
+        return r.text();
+      })
+      .then(check)
+      .catch(function (e) {
+        console.error("attempt " + n + "/" + attempts + " failed:", e.message);
+        if (n < attempts) setTimeout(function () { tryFetch(n + 1); }, 20000);
+        else process.exit(1);
+      });
+  };
+  tryFetch(1);
 }
