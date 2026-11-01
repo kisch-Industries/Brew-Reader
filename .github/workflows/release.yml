@@ -1,0 +1,22 @@
+# Push a tag like v1.0.0 to publish a release with brewreader.zip attached.
+# KindleForge's install.sh downloads releases/latest/download/brewreader.zip.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: node test/extract.test.js
+      - run: ./build.sh
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/brewreader.zip
+          generate_release_notes: true

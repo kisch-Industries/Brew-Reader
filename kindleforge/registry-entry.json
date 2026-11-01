@@ -1,0 +1,14 @@
+{
+  "name": "Brew Reader",
+  "uri": "BrewReader",
+  "description": "Unofficial Reader For The Daily Morning Brew Newsletter",
+  "author": "Alex Kisch",
+  "ABI": [
+    "hf",
+    "sf"
+  ],
+  "dependencies": [],
+  "tags": [
+    "MEDIA"
+  ]
+}
