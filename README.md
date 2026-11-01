@@ -4,7 +4,7 @@ Unofficial Kindle app for reading the free daily [Morning Brew](https://www.morn
 
 **Not affiliated with or endorsed by Morning Brew.** The app loads the public issue page directly from morningbrew.com on your Kindle; nothing is hosted or redistributed by this project.
 
-Built as an Illusion (mesquite) app in the same format as the [KindleForge](https://github.com/KindleTweaks/KindleForge) packages.
+Built as an Illusion (mesquite) app in the same format as the [KindleForge](https://github.com/KindleTweaks/KindleForge) packages. The app config and launcher are adapted from [KWordle](https://github.com/crizmo/kwordle) by Kurizu.
 
 ## Requirements
 
@@ -51,3 +51,7 @@ brew install libmtp
 cc -o tools/mtp-push tools/mtp-push.c -I"$(brew --prefix)/include" -L"$(brew --prefix)/lib" -lmtp
 ./tools/mtp-push .   # then plug in and unlock the Kindle
 ```
+
+## License
+
+MIT. See [LICENSE](LICENSE), which also carries KWordle's notice for the adapted files.
