@@ -1,0 +1,20 @@
+# Daily check that Morning Brew's page still has the issue where the app expects it.
+# A failure here means the app is broken for everyone; GitHub emails the repo owner.
+name: Check Morning Brew page
+
+on:
+  schedule:
+    - cron: "30 12 * * *" # after the 6 AM ET issue goes out
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node test/extract.test.js

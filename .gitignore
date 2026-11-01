@@ -1,0 +1,5 @@
+dist/
+.DS_Store
+brewreader/latest.html
+tools/mtp-push
+brewreader/latest.tmp

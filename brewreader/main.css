@@ -1,0 +1,117 @@
+/* E-ink: pure black on white, no animation, generous type. */
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #fff;
+  color: #000;
+}
+
+body {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 20px;
+  line-height: 1.5;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Paged, not scrolled: main.js moves scrollTop one screen at a time. */
+#page {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 32px;
+  overflow: hidden;
+  padding: 16px 28px 0;
+}
+
+/* Positioned by showPage() to hide partial lines at the page edges. */
+.mask {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: #fff;
+}
+
+#mask-top {
+  top: 0;
+  height: 0;
+}
+
+#mask-bottom {
+  bottom: 32px;
+  display: none;
+}
+
+/* Fixed px size: the page number doesn't change with the text size. */
+#page-number {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 32px;
+  line-height: 32px;
+  text-align: center;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 14px;
+}
+
+header {
+  border-bottom: 2px solid #000;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+}
+
+#issue-date {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 0.75em;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+#issue-subject {
+  font-size: 1.5em;
+  margin: 6px 0 0;
+}
+
+#status {
+  font-family: Helvetica, Arial, sans-serif;
+  padding: 40px 0;
+  text-align: center;
+}
+
+/* Flatten email table layout into a single column. */
+#content table, #content tbody, #content tr, #content td, #content th {
+  display: block;
+  width: auto !important;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+/* Width and height are set inline by sizeImages(). */
+#content img {
+  display: block;
+  max-width: 100%;
+  margin: 12px auto;
+}
+
+#content p {
+  margin: 0 0 14px;
+}
+
+#content h1, #content h2, #content h3 {
+  font-size: 1.2em;
+  margin: 28px 0 10px;
+}
+
+#content a {
+  color: #000;
+  text-decoration: none;
+}
+
+#content hr {
+  border: 0;
+  border-top: 1px solid #000;
+  margin: 24px 0;
+}
