@@ -112,7 +112,13 @@ function setStatus(text) {
   document.getElementById("status").style.display = text ? "block" : "none";
 }
 
-function render(issue) {
+// Date of the issue on screen, from the page data (e.g. "2026-11-01T06:00:00-05:00").
+var shownDate = "";
+
+function render(issue, quiet) {
+  // A background check that found the same issue leaves the reader where they are.
+  if (quiet && shownDate && issue.date === shownDate) return;
+  shownDate = issue.date;
   // An inert document: nothing in it runs or loads while we clean it.
   var doc = document.implementation.createHTMLDocument("issue");
   doc.documentElement.innerHTML = issue.html;
@@ -237,6 +243,7 @@ function showPage(index) {
 
 function turnPage(direction) {
   showPage(currentPage + direction);
+  refreshIfStale();
 }
 
 // Text size. Images are sized in px from the screen, so they stay the same at every text size.
@@ -318,42 +325,73 @@ function get(url, cb) {
 // telling the reader to check Wi-Fi would be wrong.
 var pageChanged = false;
 
-function loadFailed() {
+function loadFailed(quiet) {
+  // A failed background check keeps the issue on screen; the next check tries again.
+  if (quiet && shownDate) return;
   setStatus(pageChanged
     ? "Morning Brew's site has changed and Brew Reader can't read it yet. Check for an app update."
     : "Couldn't load today's issue. Check Wi-Fi and choose Reload from the menu.");
 }
 
 // The launcher downloads the local copy in the background, so it may not exist yet: retry for ~20s.
-function loadLocal(attempt) {
+function loadLocal(attempt, quiet) {
   get(LOCAL_COPY, function (text) {
     var issue = text && extractIssue(text);
     if (text && !issue) pageChanged = true;
-    if (issue) render(issue);
-    else if (attempt < 10) setTimeout(function () { loadLocal(attempt + 1); }, 2000);
-    else loadFailed();
+    if (issue) render(issue, quiet);
+    else if (attempt < 10) setTimeout(function () { loadLocal(attempt + 1, quiet); }, 2000);
+    else loadFailed(quiet);
   });
 }
 
-function loadLive() {
+function loadLive(quiet) {
   pageChanged = false;
   get(ISSUE_URL + "?t=" + new Date().getTime(), function (text) {
     var issue = text && extractIssue(text);
     if (text && !issue) pageChanged = true;
-    if (issue) render(issue);
-    else loadLocal(0);
+    if (issue) render(issue, quiet);
+    // The local copy only changes at launch, so a background check has nothing to gain from waiting on it.
+    else loadLocal(quiet ? 10 : 0, quiet);
   });
 }
 
-function load() {
+var lastLoad = 0;
+
+// quiet: a background check for a new issue, with no status messages or Wi-Fi prompt.
+function load(quiet) {
+  lastLoad = new Date().getTime();
+  if (quiet) {
+    loadLive(true);
+    return;
+  }
   setStatus("Loading today's issue...");
-  var start = loadLive;
+  var start = function () { loadLive(false); };
   if (window.kindle && window.kindle.net && window.kindle.net.ensureConnection) {
     // Prompts for Wi-Fi if needed; we try either way so the local copy can still show.
     window.kindle.net.ensureConnection("all", false, start);
   } else {
     start();
   }
+}
+
+function localDay(d) {
+  return d.getFullYear() + "-" + (d.getMonth() < 9 ? "0" : "") + (d.getMonth() + 1) + "-" +
+    (d.getDate() < 10 ? "0" : "") + d.getDate();
+}
+
+// The app keeps running in the background, so a new day doesn't reload it on its own.
+function issueIsToday(date, now) {
+  return date.substring(0, 10) === localDay(now);
+}
+
+// Checks at most every 10 minutes: right after waking, Wi-Fi may not be back yet.
+var CHECK_INTERVAL = 10 * 60 * 1000;
+
+function refreshIfStale() {
+  var now = new Date();
+  if (shownDate && issueIsToday(shownDate, now)) return;
+  if (now.getTime() - lastLoad < CHECK_INTERVAL) return;
+  load(true);
 }
 
 function configureChrome() {
@@ -389,8 +427,9 @@ if (typeof window !== "undefined") {
   if (window.kindle) {
     window.kindle.appmgr.ongo = function () {
       configureChrome();
+      refreshIfStale();
       window.kindle.messaging.receiveMessage("systemMenuItemSelected", function (type, id) {
-        if (id === "MB_RELOAD") load();
+        if (id === "MB_RELOAD") load(false);
         else if (id === "MB_FONT_LARGER") changeFontSize(1);
         else if (id === "MB_FONT_SMALLER") changeFontSize(-1);
       });
@@ -422,8 +461,12 @@ if (typeof window !== "undefined") {
         turnPage(dy < 0 ? 1 : -1);
       }
     });
-    load();
+    load(false);
+    document.addEventListener("visibilitychange", function () {
+      if (!document.hidden) refreshIfStale();
+    });
+    setInterval(refreshIfStale, CHECK_INTERVAL);
   });
 }
 
-if (typeof module !== "undefined") module.exports = { extractIssue: extractIssue, formatDate: formatDate };
+if (typeof module !== "undefined") module.exports = { extractIssue: extractIssue, formatDate: formatDate, issueIsToday: issueIsToday };

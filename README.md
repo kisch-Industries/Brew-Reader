@@ -22,6 +22,7 @@ Built as an Illusion (mesquite) app in the same format as the [KindleForge](http
 - Tap the right two-thirds of the screen for the next page, the left third to go back (swipes also work where the Kindle sends touch events).
 - Pages break between lines, like a Kindle book, so nothing is repeated or cut.
 - The **⋮** menu has **Reload**, **Larger Text** and **Smaller Text**. Text size is remembered; images keep their size.
+- A new day's issue loads on its own when you come back to the app or turn a page, so Reload is rarely needed.
 
 ## How it works
 

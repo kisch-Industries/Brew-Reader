@@ -6,6 +6,8 @@ var app = require("../brewreader/main.js");
 
 assert.strictEqual(app.formatDate("2026-11-01T06:00:00-05:00"), "November 1, 2026");
 assert.strictEqual(app.extractIssue("<html>no data</html>"), null);
+assert.ok(app.issueIsToday("2026-11-01T06:00:00-05:00", new Date(2026, 10, 1, 9)));
+assert.ok(!app.issueIsToday("2026-10-31T06:00:00-05:00", new Date(2026, 10, 1, 9)));
 
 function check(page) {
   var issue = app.extractIssue(page);
